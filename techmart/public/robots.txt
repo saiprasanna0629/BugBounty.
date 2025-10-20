@@ -1,0 +1,13 @@
+# TechMart Robots.txt
+# This file tells search engines which pages to crawl
+
+User-agent: *
+Disallow: /sys-admin-portal-x7k9
+Disallow: /private/
+Disallow: /internal/
+Disallow: /uploads/
+
+# Admin panel location (should not be public!)
+# Path: /sys-admin-portal-x7k9
+
+Sitemap: https://techmart.com/sitemap.xml
