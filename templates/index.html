@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fest Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #111827; }
+        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        .finding-modal-content { transition: transform 0.3s ease-out, opacity 0.3s ease-out; }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-300">
+
+    <!-- Finding Confirmation Modal -->
+    <div id="finding-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div class="finding-modal-content bg-gray-800 rounded-lg shadow-2xl p-6 w-11/12 md:w-1/2 max-w-lg border border-teal-500 transform scale-95 opacity-0">
+            <div class="flex items-start">
+                <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-teal-900 sm:mx-0 sm:h-10 sm:w-10">
+                    <svg class="h-6 w-6 text-teal-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                </div>
+                <div class="ml-4 text-left">
+                    <h3 class="text-lg leading-6 font-medium text-white" id="finding-title">Vulnerability Confirmed</h3>
+                    <div class="mt-2">
+                        <p class="text-sm text-gray-400" id="finding-description">Your input was successfully processed.</p>
+                        <div class="mt-3 bg-gray-900 p-3 rounded-md text-xs font-mono text-yellow-300 overflow-x-auto" id="finding-proof"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+                <button onclick="closeModal()" type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-teal-600 text-base font-medium text-white hover:bg-teal-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm transition-colors">
+                    Continue
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="min-h-screen flex flex-col">
+        <nav class="bg-gray-800/50 backdrop-blur-sm border-b border-gray-700 sticky top-0 z-10">
+             <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-16">
+                    <div class="flex items-center">
+                        <span class="font-bold text-xl text-white">FestPortal</span>
+                    </div>
+                    <div class="flex-1 ml-6">
+                        <form id="search-form" class="w-full max-w-md">
+                            <input type="text" name="q" class="w-full bg-gray-900 border border-gray-600 rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Search the portal...">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <div id="search-results-container" class="container mx-auto p-4 md:p-8 hidden"></div>
+        <main id="main-container" class="container mx-auto p-4 md:p-8 flex-grow"></main>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5000';
+        const mainContainer = document.getElementById('main-container');
+        const searchResultsContainer = document.getElementById('search-results-container');
+        const searchForm = document.getElementById('search-form');
+        const modal = { el: document.getElementById('finding-modal'), content: document.querySelector('.finding-modal-content'), title: document.getElementById('finding-title'), description: document.getElementById('finding-description'), proof: document.getElementById('finding-proof') };
+        
+        // --- State management for found vulnerabilities ---
+        const foundVulnerabilities = new Set();
+
+        // --- API Wrapper for reliable flag detection ---
+        async function apiFetch(url, options = {}) {
+            const response = await fetch(url, options);
+            
+            const confirmedVulnerability = response.headers.get('X-Vulnerability-Confirmed');
+            // Check if vulnerability is confirmed AND we haven't shown it before
+            if (confirmedVulnerability && !foundVulnerabilities.has(confirmedVulnerability)) {
+                foundVulnerabilities.add(confirmedVulnerability); // Mark as found
+                const findings = {
+                    'xss-reflected': { title: 'Reflected XSS Confirmed', description: 'The server reflected unsanitized user input, allowing script execution.' },
+                    'idor': { title: 'IDOR Confirmed', description: 'Successfully accessed an administrator\'s private data by manipulating user IDs.' },
+                    'xss-stored': { title: 'Stored XSS Confirmed', description: 'The server stored a malicious payload that bypasses its filters.' },
+                    'sqli': { title: 'SQL Injection Confirmed', description: 'Exfiltrated data from the users table via a UNION attack.' }
+                };
+                if (findings[confirmedVulnerability]) {
+                    showFinding(findings[confirmedVulnerability], confirmedVulnerability);
+                }
+            }
+            
+            return response.json();
+        }
+
+        // --- Navigation & Rendering ---
+        function navigate(view, params = {}) {
+            mainContainer.classList.add('hidden'); searchResultsContainer.classList.add('hidden');
+            if (view === 'search') { searchResultsContainer.classList.remove('hidden'); renderSearchResults(params.data); } 
+            else { mainContainer.classList.remove('hidden'); renderDashboard(); }
+        }
+        function renderDashboard() {
+            mainContainer.innerHTML = `<div class="grid grid-cols-1 lg:grid-cols-3 gap-8"><div class="lg:col-span-2 space-y-8">${createProductCatalogCard()}${createGuestbookCard()}</div><div class="lg:col-span-1 space-y-8">${createProfileViewerCard()}</div></div>`;
+            attachDashboardListeners(); loadGuestbook(); loadPublicUsers();
+        }
+        function createProfileViewerCard() { return `<div class="bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-700 fade-in"><h2 class="text-xl font-semibold text-cyan-400 mb-4">Profile Viewer</h2><p class="text-gray-400 text-sm mb-4">View public profiles of festival staff.</p><div id="public-profiles-list" class="space-y-2"><p class="text-gray-500 text-sm">Loading user directory...</p></div><div id="profile-details" class="mt-4 border-t border-gray-700 pt-4"></div></div>`; }
+        function createProductCatalogCard() { return `<div class="bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-700 fade-in" style="animation-delay: 0.1s;"><h2 class="text-xl font-semibold text-amber-400 mb-4">Product Catalog</h2><form id="product-search-form" class="flex gap-2"><input type="text" name="q_product" class="flex-grow bg-gray-900 border border-gray-600 rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="Search for tickets, passes..."><button type="submit" class="bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Search</button></form><div id="product-results" class="mt-4"><p class="text-gray-500 text-sm">Search for a product to see details.</p></div></div>`; }
+        function createGuestbookCard() { return `<div class="bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-700 fade-in" style="animation-delay: 0.2s;"><h2 class="text-xl font-semibold text-rose-400 mb-4">Guestbook</h2><form id="guestbook-form"><textarea name="comment" class="w-full bg-gray-900 border border-gray-600 rounded-md py-2 px-3 h-20 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500" placeholder="Leave a public comment..."></textarea><button type="submit" class="mt-3 w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Post Comment</button></form><div class="mt-4"><h3 class="font-semibold text-sm text-gray-400 mb-2">Recent Comments:</h3><div id="guestbook-posts" class="space-y-3 p-3 bg-gray-900 rounded-md h-48 overflow-y-auto text-sm"></div></div></div>`; }
+        function renderSearchResults(data) { searchResultsContainer.innerHTML = `<div class="bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-700 fade-in"><div id="search-content" class="prose prose-invert max-w-none">${data.html}</div></div>`; }
+
+        // --- API Handlers (now use apiFetch and have no detection logic) ---
+        searchForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const query = e.target.elements.q.value;
+            if (!query) { navigate('dashboard'); return; }
+            const data = await apiFetch(`${API_BASE_URL}/api/search?q=${encodeURIComponent(query)}`);
+            navigate('search', { data });
+        });
+        
+        async function loadPublicUsers() {
+            try {
+                const users = await apiFetch(`${API_BASE_URL}/api/users`);
+                document.getElementById('public-profiles-list').innerHTML = users.map(user => `<button onclick="handleProfileView('${user.id}')" class="w-full text-left p-2 rounded-md hover:bg-gray-700 transition-colors">${user.name} (${user.title})</button>`).join('');
+            } catch (error) { console.error("Failed to load users:", error); document.getElementById('public-profiles-list').innerHTML = `<p class="text-red-400 text-sm">Could not load user directory.</p>`; }
+        }
+
+        async function handleProfileView(userId) {
+            const data = await apiFetch(`${API_BASE_URL}/api/profile/${userId}`);
+            const profileDetails = document.getElementById('profile-details');
+            if (data.user) {
+                let detailsHtml = `<h3 class="font-bold text-white">${data.user.name}</h3><p class="text-sm text-gray-400">${data.user.bio}</p>`;
+                if (data.user.last_support_ticket) {
+                    detailsHtml += `<div class="mt-2 text-xs font-mono bg-gray-900 p-2 rounded"><b>Support Ticket:</b> ${data.user.last_support_ticket}</div>`;
+                }
+                if (data.user.private_note) {
+                    detailsHtml += `<div class="mt-2 text-xs font-mono bg-red-900/50 p-2 rounded border border-red-500"><b>Private Note:</b> ${data.user.private_note}</div>`;
+                }
+                profileDetails.innerHTML = detailsHtml;
+            } else { profileDetails.innerHTML = `<p class="text-red-400 text-sm">Could not fetch profile.</p>`; }
+        }
+
+        async function handleProductSearch(e) {
+            e.preventDefault();
+            const query = e.target.elements.q_product.value;
+            const results = await apiFetch(`${API_BASE_URL}/api/products?q=${encodeURIComponent(query)}`);
+            const resultsContainer = document.getElementById('product-results');
+            if (results.length > 0) {
+                 resultsContainer.innerHTML = results.map(item => `<div class="p-3 border-t border-gray-700"><p class="font-semibold text-white">${escapeHtml(item.name||'')}</p><p class="text-sm text-gray-400 font-mono">${escapeHtml(item.description||'')}</p></div>`).join('');
+            } else { resultsContainer.innerHTML = `<p class="text-gray-500 text-sm">No products found.</p>`; }
+        }
+
+        async function loadGuestbook() {
+            try {
+                const data = await apiFetch(`${API_BASE_URL}/api/guestbook`);
+                const postsContainer = document.getElementById('guestbook-posts');
+                if(!postsContainer) return;
+                postsContainer.innerHTML = '';
+                data.posts.slice().reverse().forEach(post => {
+                    const postEl = document.createElement('div');
+                    postEl.className = 'p-2 bg-gray-800 rounded break-words';
+                    postEl.innerHTML = post;
+                    postsContainer.appendChild(postEl);
+                });
+            } catch (error) { console.error("Failed to load guestbook:", error); }
+        }
+
+        async function handleGuestbookPost(e) {
+            e.preventDefault();
+            const commentInput = e.target.elements.comment;
+            await apiFetch(`${API_BASE_URL}/api/guestbook`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ comment: commentInput.value }) });
+            commentInput.value = '';
+            loadGuestbook();
+        }
+
+        // --- Modal & Utility Functions ---
+        async function showFinding(finding, challengeId) {
+            modal.title.textContent = finding.title;
+            modal.description.textContent = finding.description;
+            modal.proof.textContent = 'Requesting proof of exploit from server...';
+            modal.el.classList.remove('hidden');
+            setTimeout(() => modal.content.classList.remove('scale-95', 'opacity-0'), 50);
+
+            try {
+                const data = await apiFetch(`${API_BASE_URL}/api/generate-flag/${challengeId}`);
+                modal.proof.textContent = data.flag;
+            } catch (error) {
+                console.error("Flag generation failed:", error);
+                modal.proof.textContent = 'Error: Could not retrieve flag.';
+            }
+        }
+
+        function closeModal() {
+            modal.content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => modal.el.classList.add('hidden'), 300);
+        }
+        function attachDashboardListeners() {
+            document.getElementById('guestbook-form')?.addEventListener('submit', handleGuestbookPost);
+            document.getElementById('product-search-form')?.addEventListener('submit', handleProductSearch);
+        }
+        function escapeHtml(unsafe) { return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); }
+        document.addEventListener('DOMContentLoaded', () => navigate('dashboard'));
+    </script>
+</body>
+</html>
+
