@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Portal - TechVault Solutions</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="container">
+                <div class="logo">
+                    <span class="logo-icon">🔐</span>
+                    <span class="logo-text">TechVault Solutions</span>
+                </div>
+                <ul class="nav-links">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/solutions">Solutions</a></li>
+                    <li><a href="/pricing">Pricing</a></li>
+                    <li><a href="/dashboard" class="active">Portal</a></li>
+                    <li><a href="/support">Support</a></li>
+                </ul>
+                <div class="nav-cta">
+                    <a href="/support" class="btn-nav">Help</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <section class="portal-header">
+        <div class="container">
+            <h1>Invoice Processing Portal</h1>
+            <p>Submit and manage your XML invoices</p>
+        </div>
+    </section>
+
+    <section class="portal-main">
+        <div class="container">
+            <div class="portal-layout">
+                <aside class="portal-sidebar">
+                    <div class="sidebar-section">
+                        <h3>Quick Actions</h3>
+                        <button class="sidebar-btn active" onclick="showTab('submit')">
+                            📤 Submit Invoice
+                        </button>
+                        <button class="sidebar-btn" onclick="showTab('history')">
+                            📋 Invoice History
+                        </button>
+                        <button class="sidebar-btn" onclick="showTab('suppliers')">
+                            👥 Suppliers
+                        </button>
+                    </div>
+                    
+                    <div class="sidebar-section">
+                        <h3>System Status</h3>
+                        <div class="status-indicator">
+                            <span class="status-dot active"></span>
+                            <span>All Systems Operational</span>
+                        </div>
+                        <div class="status-info">
+                            <small>API v2.1.5</small><br>
+                            <small>Uptime: 99.99%</small>
+                        </div>
+                    </div>
+                    
+                    <div class="sidebar-section">
+                        <h3>Need Help?</h3>
+                        <a href="/support" class="help-link">📚 View Documentation</a>
+                        <a href="/support" class="help-link">💬 Contact Support</a>
+                    </div>
+                </aside>
+
+                <main class="portal-content">
+                    <div id="submit-tab" class="portal-tab active">
+                        <div class="content-header">
+                            <h2>Submit New Invoice</h2>
+                            <p>Upload your XML invoice for processing</p>
+                        </div>
+                        
+                        <div class="editor-container">
+                            <div class="editor-toolbar">
+                                <button class="toolbar-btn" onclick="formatXML()">
+                                    <span>✨</span> Format
+                                </button>
+                                <button class="toolbar-btn" onclick="clearEditor()">
+                                    <span>🗑️</span> Clear
+                                </button>
+                                <button class="toolbar-btn" onclick="loadTemplate()">
+                                    <span>📋</span> Load Template
+                                </button>
+                            </div>
+                            
+                            <textarea id="xmlEditor" class="xml-editor" placeholder="Paste your XML invoice here..."><?xml version="1.0" encoding="UTF-8"?>
+<invoice>
+    <invoiceId>INV-2025-1001</invoiceId>
+    <supplier>
+        <name>Acme Corporation</name>
+        <vendorCode>ACME-5421</vendorCode>
+    </supplier>
+    <items>
+        <item>
+            <description>Cloud Services</description>
+            <amount>5000.00</amount>
+            <currency>USD</currency>
+        </item>
+    </items>
+    <total>5000.00</total>
+</invoice></textarea>
+                            
+                            <div class="editor-footer">
+                                <button id="submitInvoiceBtn" class="btn-submit" onclick="submitInvoice()">
+                                    Submit Invoice
+                                </button>
+                                <span class="editor-info">Endpoint: POST /api/v2/invoice/submit</span>
+                            </div>
+                        </div>
+                        
+                        <div class="response-container">
+                            <h3>Response</h3>
+                            <div id="responseBox" class="response-box">
+                                <p class="response-placeholder">Response will appear here after submission...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="history-tab" class="portal-tab">
+                        <div class="content-header">
+                            <h2>Invoice History</h2>
+                            <p>View your recently submitted invoices</p>
+                        </div>
+                        
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Invoice ID</th>
+                                        <th>Supplier</th>
+                                        <th>Amount</th>
+                                        <th>Approval Token</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="invoiceHistoryTable">
+                                    <tr>
+                                        <td colspan="6" class="table-empty">No invoices submitted yet</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <button class="btn-secondary" onclick="loadInvoiceHistory()">
+                            🔄 Refresh
+                        </button>
+                    </div>
+
+                    <div id="suppliers-tab" class="portal-tab">
+                        <div class="content-header">
+                            <h2>Registered Suppliers</h2>
+                            <p>List of approved suppliers for invoice processing</p>
+                        </div>
+                        
+                        <div class="suppliers-grid" id="suppliersGrid">
+                            <div class="supplier-card">
+                                <h4>Acme Corporation</h4>
+                                <p>Code: ACME-5421</p>
+                                <span class="badge-active">Active</span>
+                            </div>
+                            <div class="supplier-card">
+                                <h4>TechSupply Inc</h4>
+                                <p>Code: TECH-8932</p>
+                                <span class="badge-active">Active</span>
+                            </div>
+                            <div class="supplier-card">
+                                <h4>CloudVendor LLC</h4>
+                                <p>Code: CLOUD-2341</p>
+                                <span class="badge-active">Active</span>
+                            </div>
+                            <div class="supplier-card">
+                                <h4>Global Solutions Ltd</h4>
+                                <p>Code: GLOB-7654</p>
+                                <span class="badge-active">Active</span>
+                            </div>
+                            <div class="supplier-card">
+                                <h4>Enterprise Systems Inc</h4>
+                                <p>Code: ENT-4567</p>
+                                <span class="badge-active">Active</span>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer-minimal">
+        <div class="container">
+            <p>&copy; 2025 TechVault Solutions Inc. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

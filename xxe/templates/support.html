@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support - TechVault</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="container">
+                <div class="logo">
+                    <span class="logo-icon">🔐</span>
+                    <span class="logo-text">TechVault Solutions</span>
+                </div>
+                <ul class="nav-links">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/solutions">Solutions</a></li>
+                    <li><a href="/pricing">Pricing</a></li>
+                    <li><a href="/dashboard">Portal</a></li>
+                    <li><a href="/support" class="active">Support</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <section class="page-hero">
+        <div class="container">
+            <h1>Help & Documentation</h1>
+            <p>Find answers and get support</p>
+        </div>
+    </section>
+
+    <section class="support-content">
+        <div class="container">
+            <div class="support-grid">
+                <div class="support-card">
+                    <h3>📚 API Documentation</h3>
+                    <p>Complete API reference with examples and best practices.</p>
+                    <h4>Endpoints:</h4>
+                    <ul>
+                        <li><code>POST /api/v2/invoice/submit</code> - Submit invoice</li>
+                        <li><code>GET /api/v2/invoice/list</code> - List invoices</li>
+                        <li><code>GET /api/health</code> - Health check</li>
+                        <li><code>GET /api/suppliers</code> - Get suppliers</li>
+                    </ul>
+                </div>
+
+                <div class="support-card">
+                    <h3>💬 Contact Support</h3>
+                    <p>Our team is here to help you 24/7.</p>
+                    <p><strong>Email:</strong> support@techvault.com</p>
+                    <p><strong>Phone:</strong> +1 (555) 123-4567</p>
+                    <p><strong>Response Time:</strong> &lt; 2 hours</p>
+                </div>
+
+                <div class="support-card">
+                    <h3>🎓 Getting Started</h3>
+                    <p>New to TechVault? Start here:</p>
+                    <ol>
+                        <li>Access the invoice portal</li>
+                        <li>Prepare your XML invoice</li>
+                        <li>Submit via API or web interface</li>
+                        <li>Receive approval token</li>
+                    </ol>
+                </div>
+
+                <div class="support-card">
+                    <h3>⚡ System Status</h3>
+                    <p>All systems operational</p>
+                    <p><strong>API:</strong> <span class="status-online">●</span> Online</p>
+                    <p><strong>Processing:</strong> <span class="status-online">●</span> Online</p>
+                    <p><strong>Database:</strong> <span class="status-online">●</span> Online</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2025 TechVault Solutions Inc.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
