@@ -54,6 +54,18 @@ def index():
 def dashboard():
     return render_template('dashboard.html')
 
+@app.route('/solutions')
+def solutions():
+    return render_template('solutions.html')
+
+@app.route('/pricing')
+def pricing():
+    return render_template('pricing.html')
+
+@app.route('/support')
+def support():
+    return render_template('support.html')
+
 @app.route('/api/v2/invoice/submit', methods=['POST'])
 def submit_invoice():
     try:
