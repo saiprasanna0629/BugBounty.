@@ -63,7 +63,7 @@ Access the InnovaTech Employee Portal and exploit a vulnerability in the JWT aut
 After successfully exploiting the vulnerability and deleting the target user, you should receive a bounty code in the following format:
 
 ```
-Bounty: 9B2C3F4D7A5E8D1F0B9C2A6E4D3F7A1C
+Bounty: 7A3F9B2E8C1D4F6A5E7B9C0D2F4A6E8B
 ```
 
 Submit this exact string to complete the challenge.
