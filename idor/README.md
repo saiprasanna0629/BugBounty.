@@ -15,3 +15,5 @@ Test Credentials:
 Target: Find the SSN of the CEO patient (Patient ID: 1004)
 
 Submit Format: XXX-XX-XXXX
+
+Bounty: 555-12-8888
