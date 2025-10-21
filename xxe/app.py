@@ -154,7 +154,7 @@ def robots():
     return """User-agent: *
 Disallow: /api/debug/
 
-# Config: /tmp/techvault/config/
+# Config: /tmp/techvault/config/api_keys.xml
 """, 200, {'Content-Type': 'text/plain'}
 
 if __name__ == '__main__':
