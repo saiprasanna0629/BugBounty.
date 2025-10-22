@@ -24,14 +24,12 @@ document.addEventListener('DOMContentLoaded', () => {
     initWebSocket();
 });
 
-// HTML Entity Encoding function - CRITICAL for XSS vulnerability
 function htmlEncode(str) {
     const div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
 }
 
-// Render products with images loaded from backend
 function renderProducts(filter = '') {
     const grid = document.getElementById('products-grid');
     const filtered = products.filter(p => 
@@ -192,7 +190,6 @@ function closeStockModal() {
     document.getElementById('stockModal').classList.remove('active');
 }
 
-// VULNERABILITY 1: Check stock (Command Injection - Sandboxed)
 async function checkStock() {
     const storeId = document.getElementById('storeSelect').value;
     const resultDiv = document.getElementById('stockResult');
@@ -206,7 +203,7 @@ async function checkStock() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 productId: currentProduct.id,
-                storeId: storeId  // VULNERABLE: No sanitization
+                storeId: storeId  
             })
         });
         
@@ -217,7 +214,6 @@ async function checkStock() {
     }
 }
 
-// VULNERABILITY 3: WebSocket chat with HTML encoding on frontend
 function initWebSocket() {
     try {
         ws = new WebSocket(WS_URL);
@@ -254,11 +250,8 @@ function sendChatMessage() {
     
     if (!message || !ws || ws.readyState !== WebSocket.OPEN) return;
     
-    // IMPORTANT: HTML encode the message on CLIENT SIDE before sending
-    // This prevents direct XSS execution in the chat UI
     const encodedMessage = htmlEncode(message);
     
-    // Display user message with encoded content (safe)
     displayChatMessage({
         type: 'user',
         content: encodedMessage,
@@ -266,9 +259,6 @@ function sendChatMessage() {
         encoded: true
     });
     
-    // Send ENCODED message via WebSocket
-    // VULNERABILITY: User must intercept with Burp Suite and replace
-    // the encoded message with raw XSS payload to exploit
     ws.send(encodedMessage);
     
     input.value = '';
@@ -290,11 +280,8 @@ function displayChatMessage(data) {
         const contentDiv = document.createElement('div');
         
         if (data.encoded || data.type === 'user') {
-            // User messages are already encoded - display as text
             contentDiv.innerHTML = data.content;
         } else {
-            // Admin messages from server - could contain XSS
-            // VULNERABLE: innerHTML allows XSS from server responses
             contentDiv.innerHTML = data.content;
         }
         

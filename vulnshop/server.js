@@ -10,9 +10,9 @@ const PORT = 3001;
 
 // Flags for CTF
 const FLAGS = {
-  commandInjection: 'flag{0sC0mm4nd_1nj3ct10n_m4st3r}',
-  pathTraversal: 'flag{p4th_tr4v3rs4l_n1nj4_2024}',
-  xss: 'flag{w3bs0ck3t_xss_ch4mp10n}'
+  commandInjection: 'laptop-Vig1l4ntX-19/johnyy',
+  pathTraversal: '@gVe25N78143!',
+  xss: 'bug-id:2025-7896-1022'
 };
 
 // Middleware
@@ -194,7 +194,7 @@ app.get('/api/product-image', (req, res) => {
 daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
 bin:x:2:2:bin:/bin:/usr/sbin/nologin
 sys:x:3:3:sys:/dev:/usr/sbin/nologin
-flag:x:1001:1001:${FLAGS.pathTraversal}:/home/flag:/bin/bash
+johnyy:${FLAGS.pathTraversal}:1001:1001:johnyy:/home/johnyy:/bin/bash
 www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin
 sync:x:4:65534:sync:/bin:/bin/sync
 games:x:5:60:games:/usr/games:/usr/sbin/nologin`;
@@ -322,7 +322,7 @@ wss.on('connection', (ws) => {
       console.log('[XSS DETECTED] Raw XSS payload received!');
       
       if (isAlertPayload(msgString)) {
-        console.log('[ALERT DETECTED] Sending flag...');
+        console.log('[ALERT DETECTED] Sending bug id...');
         
         setTimeout(() => {
           ws.send(JSON.stringify({
