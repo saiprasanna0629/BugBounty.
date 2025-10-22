@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Administration - TechMart</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar navbar-admin">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>🔐 System Administration Portal</h1>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Back to Store</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="admin-panel">
+            <div class="admin-header">
+                <h2>⚠️ Restricted Access Area</h2>
+                <p class="warning">This panel should not be publicly accessible</p>
+            </div>
+
+            <div class="admin-section">
+                <h3>Security Vulnerabilities Detected</h3>
+                <div class="vulnerability-card">
+                    <h4>🚨 Critical: Exposed Admin Panel</h4>
+                    <p><strong>Severity:</strong> HIGH</p>
+                    <p><strong>Issue:</strong> Admin panel is accessible without authentication</p>
+                    <p><strong>Bug ID:</strong> <code class="flag">2025-T3ChM4RT-4782</code></p>
+                    <p><strong>Description:</strong> The administration portal path was disclosed in robots.txt file, allowing unauthorized access to sensitive administrative functions.</p>
+                    <p><strong>CVSS Score:</strong> 9.1 (Critical)</p>
+                </div>
+            </div>
+
+            <div class="admin-section">
+                <h3>System Information</h3>
+                <table class="admin-table">
+                    <tr>
+                        <td>Server Status</td>
+                        <td><span class="status-active">Active</span></td>
+                    </tr>
+                    <tr>
+                        <td>Total Users</td>
+                        <td>1,247</td>
+                    </tr>
+                    <tr>
+                        <td>Total Products</td>
+                        <td>12</td>
+                    </tr>
+                    <tr>
+                        <td>Database Version</td>
+                        <td>PostgreSQL 13.4</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="admin-section">
+                <h3>User Management</h3>
+                <div class="user-list">
+                    <div class="user-item">
+                        <strong>root</strong> - Administrator
+                    </div>
+                    <div class="user-item">
+                        <strong>guest</strong> - Limited Access
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 TechMart Inc. - Internal System</p>
+        </div>
+    </footer>
+</body>
+</html>
