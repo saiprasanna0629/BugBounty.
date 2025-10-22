@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Account - TechMart</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- 
+        TechMart Profile System v2.1
+        Backend Framework: PHP 7.4 with Apache
+        Security Note: Some API endpoints may return debug information
+        TODO: Remove _internal fields from user-profile API response before production
+        Development Server: Check response headers for framework details
+    -->
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>⚡ TechMart</h1>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="#" id="logoutLink">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="account-container">
+            <h2>My Account</h2>
+            
+            <div class="account-section">
+                <h3>Profile Information</h3>
+                <p><strong>Username:</strong> <span id="usernameDisplay">Loading...</span></p>
+                <p><strong>Email:</strong> <span id="emailDisplay">Loading...</span></p>
+                <p><strong>Member Since:</strong> <span id="memberSinceDisplay">Loading...</span></p>
+                <p><strong>Account Type:</strong> <span id="roleDisplay">Loading...</span></p>
+            </div>
+
+            <div class="account-section">
+                <h3>Profile Avatar</h3>
+                <div class="avatar-section">
+                    <div class="current-avatar" id="currentAvatar">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect fill='%234a90e2' width='120' height='120'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='48' fill='white'%3ER%3C/text%3E%3C/svg%3E" alt="Avatar">
+                    </div>
+                    <form id="avatarForm" class="avatar-form">
+                        <div class="form-group">
+                            <label for="avatarFile">Upload New Avatar</label>
+                            <input type="file" id="avatarFile" name="avatar" accept="image/*" required>
+                            <p class="file-hint">Accepted formats: JPEG, PNG, GIF (Max 5MB)</p>
+                            <p class="file-hint" style="color: #999; font-size: 0.8rem;">
+                                Server supports PHP 7.4 • Apache/2.4.52
+                            </p>
+                        </div>
+                        <button type="submit" class="btn-primary">Upload Avatar</button>
+                        <div id="uploadMessage" class="message"></div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="account-section">
+                <h3>Recent Orders</h3>
+                <div class="orders-list" id="ordersList">
+                    <p>Loading orders...</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 TechMart Inc. | Powered by PHP 7.4.33</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        
+        checkAuthentication();
+        
+        async function loadUserProfile() {
+            try {
+                const response = await fetch('/api/user-profile');
+                const data = await response.json();
+                
+                // UI only shows basic public info
+                document.getElementById('usernameDisplay').textContent = data.username;
+                document.getElementById('emailDisplay').textContent = data.email;
+                document.getElementById('memberSinceDisplay').textContent = data.memberSince;
+                document.getElementById('roleDisplay').textContent = data.role;
+                
+                // Display orders
+                const ordersList = document.getElementById('ordersList');
+                if (data.orders && data.orders.length > 0) {
+                    ordersList.innerHTML = data.orders.map(order => 
+                        `<div class="order-item">${order}</div>`
+                    ).join('');
+                } else {
+                    ordersList.innerHTML = '<p>No orders yet. Start shopping!</p>';
+                }
+                
+                
+                console.log('✅ Profile loaded successfully');
+                console.log('🔍 The API might be returning more data than the UI displays...');
+                
+            } catch (error) {
+                console.error('Failed to load profile:', error);
+                document.getElementById('usernameDisplay').textContent = 'Error loading profile';
+            }
+        }
+        
+        // Load profile on page load
+        loadUserProfile();
+        
+        // Setup event listeners
+        document.getElementById('logoutLink').addEventListener('click', handleLogout);
+        document.getElementById('avatarForm').addEventListener('submit', handleAvatarUpload);
+        
+        console.log('%c🔐 TechMart Security Audit', 'color: #667eea; font-size: 16px; font-weight: bold;');
+        console.log('%cCheck for the API endpoints');
+    </script>
+</body>
+</html>

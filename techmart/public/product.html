@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details - TechMart</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>⚡ TechMart</h1>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="login.html" id="loginLink">Login</a>
+                <a href="account.html" id="accountLink" style="display: none;">My Account</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="product-detail" id="productDetail">
+            <div class="loading">Loading product...</div>
+        </div>
+        
+        <div class="back-link">
+            <a href="index.html">← Back to Products</a>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 TechMart Inc. | Powered by Apache Struts Framework</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        loadProductDetail();
+        checkSession();
+    </script>
+</body>
+</html>
